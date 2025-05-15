@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BusinessMeet Chat</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <h2>BusinessMeet Chat</h2>
+  <div id="messages"></div>
+  <form id="chatForm">
+    <input type="text" id="message" required>
+    <button type="submit">Send</button>
+  </form>
+
+  <script>
+    // Fetch messages every 2 seconds
+    setInterval(() => {
+      fetch('backend/fetch_messages.php')
+        .then(res => res.json())
+        .then(data => {
+          const msgBox = document.getElementById('messages');
+          msgBox.innerHTML = '';
+          data.forEach(msg => {
+            msgBox.innerHTML += `<p><strong>${msg.username}</strong>: ${msg.message}</p>`;
+          });
+        });
+    }, 2000);
+
+    // Send message
+    document.getElementById('chatForm').onsubmit = e => {
+      e.preventDefault();
+      const message = document.getElementById('message').value;
+
+      fetch('backend/post_message.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `message=${encodeURIComponent(message)}`
+      }).then(() => {
+        document.getElementById('message').value = '';
+      });
+    };
+  </script>
+</body>
+</html>
