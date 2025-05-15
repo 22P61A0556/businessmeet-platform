@@ -1,44 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>BusinessMeet Chat</title>
-  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    #messages { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; }
+    input, button { padding: 10px; margin: 5px; }
+  </style>
 </head>
 <body>
   <h2>BusinessMeet Chat</h2>
   <div id="messages"></div>
-  <form id="chatForm">
-    <input type="text" id="message" required>
-    <button type="submit">Send</button>
-  </form>
+  <input type="text" id="sender" placeholder="Your Name">
+  <input type="text" id="message" placeholder="Type a message">
+  <button onclick="sendMessage()">Send</button>
 
   <script>
-    // Fetch messages every 2 seconds
-    setInterval(() => {
-      fetch('backend/fetch_messages.php')
-        .then(res => res.json())
+    function fetchMessages() {
+      fetch('fetch_message.php')
+        .then(response => response.json())
         .then(data => {
-          const msgBox = document.getElementById('messages');
-          msgBox.innerHTML = '';
+          const messagesDiv = document.getElementById('messages');
+          messagesDiv.innerHTML = '';
           data.forEach(msg => {
-            msgBox.innerHTML += `<p><strong>${msg.username}</strong>: ${msg.message}</p>`;
+            messagesDiv.innerHTML += `<p><strong>${msg.sender}:</strong> ${msg.message}</p>`;
           });
         });
-    }, 2000);
+    }
 
-    // Send message
-    document.getElementById('chatForm').onsubmit = e => {
-      e.preventDefault();
+    function sendMessage() {
+      const sender = document.getElementById('sender').value;
       const message = document.getElementById('message').value;
 
-      fetch('backend/post_message.php', {
+      fetch('post_message.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `message=${encodeURIComponent(message)}`
+        body: `sender=${encodeURIComponent(sender)}&message=${encodeURIComponent(message)}`
       }).then(() => {
         document.getElementById('message').value = '';
+        fetchMessages();
       });
-    };
+    }
+
+    // Fetch messages every 2 seconds
+    setInterval(fetchMessages, 2000);
+    fetchMessages();
   </script>
 </body>
 </html>

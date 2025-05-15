@@ -1,12 +1,14 @@
 <?php
-$host = "localhost";
-$user = "root";
-$password = "your_new_password"; // default is blank in WAMP
-$dbname = "businessmeet";
+$servername = "localhost";
+$username = "root";
+$password = "your_new_password";
+$database = "businessmeet";
 
-$conn = new mysqli($host, $user, $password, $dbname);
+// Create connection
+$conn = new mysqli($servername, $username, $password, $database);
 
+// Check connection
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+  die("Connection failed: " . $conn->connect_error);
 }
 ?>

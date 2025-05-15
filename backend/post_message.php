@@ -1,12 +1,18 @@
 <?php
-include 'db.php';
-session_start();
+require_once 'db.php';
 
-$user_id = $_SESSION['user_id'];
+$sender = $_POST['sender'];
 $message = $_POST['message'];
 
-$sql = "INSERT INTO messages (user_id, message) VALUES (?, ?)";
+$sql = "INSERT INTO chat_messages (sender, message) VALUES (?, ?)";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("is", $user_id, $message);
-$stmt->execute();
+$stmt->bind_param("ss", $sender, $message);
+
+if ($stmt->execute()) {
+  echo "Message sent successfully.";
+} else {
+  echo "Error: " . $stmt->error;
+}
+
+$conn->close();
 ?>
