@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Profile</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("backend/get_profile.php")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        window.location.href = "login.html";
+                    } else {
+                        document.getElementById("name").innerText = data.name;
+                        document.getElementById("email").innerText = data.email;
+                        document.getElementById("category").innerText = data.category;
+                    }
+                });
+        });
+    </script>
+</head>
+<body>
+    <h2>Your Profile</h2>
+    <p><strong>Name:</strong> <span id="name"></span></p>
+    <p><strong>Email:</strong> <span id="email"></span></p>
+    <p><strong>Category:</strong> <span id="category"></span></p>
+    <a href="dashboard.html">Back to Dashboard</a>
+</body>
+</html>

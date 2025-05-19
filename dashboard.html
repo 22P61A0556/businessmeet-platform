@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BusinessMeet Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch("backend/get_username.php")
+                .then(res => res.text())
+                .then(name => {
+                    document.getElementById("welcome").innerText = "Welcome, " + name + "!";
+                });
+
+            loadIdeas();
+
+            document.getElementById("postForm").addEventListener("submit", function(e) {
+                e.preventDefault();
+                const idea = document.getElementById("idea").value;
+                fetch("backend/post_idea.php", {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: "idea=" + encodeURIComponent(idea)
+                })
+                .then(res => res.text())
+                .then(msg => {
+                    alert(msg);
+                    document.getElementById("idea").value = "";
+                    loadIdeas();
+                });
+            });
+        });
+
+        function loadIdeas() {
+            fetch("backend/fetch_message.php")
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("ideas").innerHTML = html;
+                });
+        }
+    </script>
+</head>
+<body>
+    <nav>
+        <a href="dashboard.html">Home</a>
+        <a href="profile.html">Profile</a>
+        <a href="logout.php">Logout</a>
+    </nav>
+    <h2 id="welcome">Welcome!</h2>
+    <form id="postForm">
+        <textarea id="idea" placeholder="Share your business idea..."></textarea>
+        <br>
+        <button type="submit">Post</button>
+    </form>
+    <hr>
+    <h3>Others' Ideas</h3>
+    <div id="ideas" style="max-height: 300px; overflow-y: scroll;"></div>
+</body>
+</html>
