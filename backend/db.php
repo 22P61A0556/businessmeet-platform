@@ -1,14 +1,12 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "your_new_password";
-$database = "businessmeet";
+$host = 'localhost';
+$user = 'root';
+$pass = 'your_new_password';
+$dbname = 'businessmeet';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $database);
+$conn = new mysqli($host, $user, $pass, $dbname);
 
-// Check connection
 if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
+    die("Connection failed: " . $conn->connect_error);
 }
 ?>
