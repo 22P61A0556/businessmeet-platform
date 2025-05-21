@@ -1,7 +1,209 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Your Profile</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Profile - BusinessMeet</title>
+    <style>
+        /* Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #222;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: url('https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+        }
+        /* Overlay to improve text readability */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-color: rgba(255, 255, 255, 0.7); /* Light overlay for readability */
+            z-index: -1;
+        }
+        /* Header */
+        header {
+            background-color: #12486e;
+            color: white;
+            padding: 30px 10px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .header-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 1.2px;
+        }
+        .header-caption {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 300;
+            opacity: 0.85;
+        }
+        /* Main Container */
+        .container {
+            position: relative;
+            width: 100%;
+            min-height: calc(100vh - 110px);
+            padding: 80px 30px 100px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        /* Content Wrapper */
+        .content-wrapper {
+            max-width: 600px;
+            width: 100%;
+            padding: 3rem 2.5rem;
+            background: #f7f7f7;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            align-items: center;
+        }
+        /* Profile Picture */
+        .profile-picture {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(1, 75, 155, 0.4);
+            border: 4px solid #016bb4;
+        }
+        /* Profile Info */
+        .profile-info {
+            font-size: 1.2rem;
+            color: #333;
+            width: 100%;
+        }
+        .profile-info p {
+            margin: 0.6rem 0;
+        }
+        .profile-info strong {
+            color: #12486e;
+        }
+        /* Buttons */
+        .btn-container {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        .btn {
+            padding: 12px 10px;
+            border: none;
+            border-radius: 6px;
+            background: #016bb4;
+            color: white;
+            font-weight: 600;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(1, 75, 155, 0.4);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
+            user-select: none;
+            text-align: center;
+            flex: 1 1 140px;
+            max-width: 200px;
+        }
+        .btn:hover {
+            background: #004a7f;
+            box-shadow: 0 8px 22px rgba(0, 46, 81, 0.55);
+            transform: translateY(-2px);
+        }
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 13px rgba(0, 46, 81, 0.35);
+        }
+        a.btn-link {
+            text-decoration: none;
+            width: 100%;
+            max-width: 200px;
+        }
+        /* Footer */
+        footer {
+            background: #182848;
+            color: white;
+            padding: 2rem 2rem;
+            text-align: center;
+            font-size: 0.9rem;
+            user-select: none;
+            position: relative;
+            z-index: 1;
+        }
+        footer p {
+            margin-bottom: 1rem;
+        }
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 60px 15px 80px;
+                align-items: center;
+            }
+            .content-wrapper {
+                padding: 2rem 1.5rem;
+            }
+            .profile-picture {
+                width: 120px;
+                height: 120px;
+            }
+            .btn-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .btn, a.btn-link {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="header-title">BusinessMeet</h1>
+        <p class="header-caption">Where Ideas Meet People Who Build Them</p>
+    </header>
+
+    <main class="container" role="main">
+        <div class="content-wrapper">
+            <img src="https://i.pravatar.cc/140" alt="Profile Picture" class="profile-picture" id="profile-picture"/>
+            <div class="profile-info">
+                <p><strong>Name:</strong> <span id="name">Loading...</span></p>
+                <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+                <p><strong>Category:</strong> <span id="category">Loading...</span></p>
+                <p><strong>Place:</strong> <span id="place">Loading...</span></p>
+                <p><strong>Bio:</strong> <span id="bio">Loading...</span></p>
+                <p><strong>Date of Birth:</strong> <span id="dob">Loading...</span></p>
+            </div>
+            <div class="btn-container">
+                <a href="dashboard.html" class="btn-link"><button class="btn" type="button">Back to Dashboard</button></a>
+            </div>
+        </div>
+    </main>
+
+      <footer>
+    <p>© 2025 BusinessMeet. All rights reserved.</p>
+    <div class="social-icons" aria-label="Social Media Links">
+      <a href="#" aria-label="Facebook" target="_blank" rel="noopener noreferrer">📘</a>
+      <a href="#" aria-label="Twitter" target="_blank" rel="noopener noreferrer">🐦</a>
+      <a href="#" aria-label="Instagram" target="_blank" rel="noopener noreferrer">📸</a>
+      <a href="#" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">💼</a>
+    </div>
+  </footer>
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             fetch("backend/get_profile.php")
@@ -14,16 +216,18 @@
                         document.getElementById("name").innerText = data.name;
                         document.getElementById("email").innerText = data.email;
                         document.getElementById("category").innerText = data.category;
+                        document.getElementById("place").innerText = data.place || "Not specified"; // Default text if not available
+                        document.getElementById("bio").innerText = data.bio || "No bio available."; // Default text if not available
+                        document.getElementById("dob").innerText = data.dob || "Not specified"; // Default text if not available
+
+                        // If profile picture URL is returned, use it; otherwise fallback to default avatar
+                        if (data.profilePictureUrl) {
+                            document.getElementById("profile-picture").src = data.profilePictureUrl;
+                        }
                     }
-                });
+                })
+              
         });
     </script>
-</head>
-<body>
-    <h2>Your Profile</h2>
-    <p><strong>Name:</strong> <span id="name"></span></p>
-    <p><strong>Email:</strong> <span id="email"></span></p>
-    <p><strong>Category:</strong> <span id="category"></span></p>
-    <a href="dashboard.html">Back to Dashboard</a>
 </body>
 </html>
