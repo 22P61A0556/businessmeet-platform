@@ -2,50 +2,512 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>BusinessMeet Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BusinessMeet Inbox Chat</title>
   <style>
-    body { font-family: Arial; margin: 20px; }
-    #messages { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; }
-    input, button { padding: 10px; margin: 5px; }
+    /* Reset basics */
+    * {
+      box-sizing: border-box;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f2f3f5;
+      color: #202124;
+    }
+    #app {
+      display: flex;
+      height: 100vh;
+      max-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar - Inbox */
+    .inbox {
+      width: 320px;
+      background-color: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #ddd;
+    }
+    .inbox-header {
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 1.25rem;
+      border-bottom: 1px solid #eee;
+      background: #0084ff;
+      color: white;
+      user-select: none;
+    }
+    .search-box {
+      padding: 10px 15px;
+      border-bottom: 1px solid #eee;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      outline: none;
+      font-size: 0.95rem;
+      transition: border-color 0.3s ease;
+    }
+    .search-box input:focus {
+      border-color: #0084ff;
+      box-shadow: 0 0 6px #60a4ff;
+    }
+
+    .conversation-list {
+      flex-grow: 1;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      background: white;
+    }
+    .conversation {
+      display: flex;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      align-items: center;
+      transition: background-color 0.2s ease;
+    }
+    .conversation:hover {
+      background-color: #f5f7fa;
+    }
+    .conversation.active {
+      background-color: #e6f0ff;
+      border-left: 4px solid #0084ff;
+    }
+
+    .conversation-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background-color: #bbb;
+      color: white;
+      font-weight: 700;
+      font-size: 1.25rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 14px;
+      user-select: none;
+      box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+    }
+
+    .conversation-info {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .conversation-name {
+      font-weight: 600;
+      font-size: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .conversation-last-message {
+      font-size: 0.875rem;
+      color: #555;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 4px;
+    }
+
+    .conversation-timestamp {
+      font-size: 0.75rem;
+      color: #888;
+      white-space: nowrap;
+      margin-left: 8px;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    /* Chat pane */
+    .chat-pane {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      background: #e5ddd5;
+      height: 100vh;
+    }
+    .chat-header {
+      padding: 16px 20px;
+      background-color: #0084ff;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-bottom: 1px solid #0072e1;
+      user-select: none;
+    }
+    .chat-header .contact-status {
+      font-weight: normal;
+      font-size: 0.8rem;
+      opacity: 0.85;
+    }
+
+    /* Chat messages */
+    .chat-messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scroll-behavior: smooth;
+      background: #e5ddd5;
+    }
+    
+    /* Individual message bubble */
+    .message {
+      max-width: 70%;
+      padding: 12px 18px;
+      font-size: 0.9rem;
+      border-radius: 20px;
+      line-height: 1.3;
+      word-wrap: break-word;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      position: relative;
+    }
+    /* Left message bubble */
+    .message.incoming {
+      background: white;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      color: #333;
+    }
+    /* Right message bubble */
+    .message.outgoing {
+      background: #0084ff;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    /* Timestamp below message */
+    .timestamp {
+      font-size: 0.7rem;
+      color: #666;
+      margin-top: 4px;
+      user-select: none;
+    }
+    .timestamp.outgoing {
+      color: rgba(255,255,255,0.75);
+      text-align: right;
+    }
+
+    /* Chat input area */
+    form.chat-input {
+      display: flex;
+      padding: 12px 20px;
+      background: white;
+      border-top: 1px solid #ddd;
+    }
+    form.chat-input input[type="text"] {
+      flex-grow: 1;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      padding: 12px 16px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+    form.chat-input input[type="text"]:focus {
+      border-color: #0084ff;
+      box-shadow: 0 0 6px #60a4ff;
+    }
+    form.chat-input button {
+      background-color: #0084ff;
+      border: none;
+      color: white;
+      font-weight: 600;
+      margin-left: 12px;
+      padding: 0 24px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    form.chat-input button:disabled {
+      background-color: #b3d1ff;
+      cursor: not-allowed;
+    }
+    form.chat-input button:hover:not(:disabled) {
+      background-color: #005bb5;
+    }
+
+    /* Responsive */
+    @media (max-width: 720px) {
+      #app {
+        flex-direction: column;
+      }
+      .inbox {
+        width: 100%;
+        height: 200px;
+        flex-shrink: 0;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+      }
+      .chat-pane {
+        height: calc(100vh - 200px);
+      }
+    }
   </style>
 </head>
 <body>
-  <h2>BusinessMeet Chat</h2>
-  <div id="messages"></div>
-  <input type="text" id="sender" placeholder="Your Name">
-  <input type="text" id="message" placeholder="Type a message">
-  <button onclick="sendMessage()">Send</button>
+  <div id="app" role="main" aria-label="BusinessMeet chat inbox interface">
+    <aside class="inbox" aria-label="Inbox of conversations">
+      <div class="inbox-header">Inbox</div>
+      <div class="search-box">
+        <input type="search" id="searchInput" placeholder="Search contacts..." aria-label="Search contacts" />
+      </div>
+      <div class="conversation-list" id="conversationList" role="list">
+        <!-- Conversations dynamically inserted here -->
+      </div>
+    </aside>
+    <section class="chat-pane" aria-label="Chat conversation area">
+      <header class="chat-header" id="chatHeader" aria-live="polite" aria-atomic="true">
+        Select a conversation
+      </header>
+      <main class="chat-messages" id="chatMessages" tabindex="0" aria-live="polite" aria-atomic="false" aria-relevant="additions">
+        <!-- Messages dynamically inserted here -->
+      </main>
+      <form id="chatForm" class="chat-input" aria-label="Send a new message" hidden>
+        <input type="text" id="messageInput" autocomplete="off" placeholder="Type a message..." aria-required="true" aria-label="Message input"/>
+        <button type="submit" id="sendButton" disabled>Send</button>
+      </form>
+    </section>
+  </div>
 
   <script>
-    function fetchMessages() {
-      fetch('fetch_message.php')
-        .then(response => response.json())
-        .then(data => {
-          const messagesDiv = document.getElementById('messages');
-          messagesDiv.innerHTML = '';
-          data.forEach(msg => {
-            messagesDiv.innerHTML += `<p><strong>${msg.sender}:</strong> ${msg.message}</p>`;
-          });
+    (function(){
+      // Sample contacts and messages data
+      const contacts = [
+        {
+          id: 'user1',
+          name: 'Alice Johnson',
+          avatar: 'AJ',
+          messages: [
+            { text: 'Hey! How are you?', timestamp: new Date(Date.now()-3600*1000*5), incoming: true },
+            { text: 'I\'m good, thanks! How about you?', timestamp: new Date(Date.now()-3600*1000*4.8), incoming: false },
+            { text: 'Doing great, just working on the project.', timestamp: new Date(Date.now()-3600*1000*4.5), incoming: true }
+          ]
+        },
+        {
+          id: 'user2',
+          name: 'Bob Smith',
+          avatar: 'BS',
+          messages: [
+            { text: 'Are we meeting tomorrow?', timestamp: new Date(Date.now()-3600*1000*10), incoming: true },
+            { text: 'Yes, 10 AM at the office.', timestamp: new Date(Date.now()-3600*1000*9.5), incoming: false },
+            { text: 'Perfect, see you then!', timestamp: new Date(Date.now()-3600*1000*9), incoming: true }
+          ]
+        },
+        {
+          id: 'user3',
+          name: 'Charlie Davis',
+          avatar: 'CD',
+          messages: [
+            { text: 'Can you send me those files?', timestamp: new Date(Date.now()-3600*1000*24), incoming: true },
+            { text: 'Sure, uploading them now.', timestamp: new Date(Date.now()-3600*1000*23.5), incoming: false }
+          ]
+        }
+      ];
+
+      // Elements
+      const conversationListEl = document.getElementById('conversationList');
+      const chatHeaderEl = document.getElementById('chatHeader');
+      const chatMessagesEl = document.getElementById('chatMessages');
+      const chatFormEl = document.getElementById('chatForm');
+      const messageInputEl = document.getElementById('messageInput');
+      const sendButtonEl = document.getElementById('sendButton');
+      const searchInputEl = document.getElementById('searchInput');
+
+      let activeConversationId = null;
+
+      // Format time as HH:MM AM/PM
+      function formatTime(date){
+        let h = date.getHours();
+        let m = date.getMinutes();
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h %= 12;
+        h = h || 12;
+        m = m < 10 ? '0' + m : m;
+        return `${h}:${m} ${ampm}`;
+      }
+
+      // Get last message info for preview
+      function getLastMessagePreview(conv){
+        if(conv.messages.length === 0) return {text: '', timestamp: null};
+        const lastMsg = conv.messages[conv.messages.length - 1];
+        return {text: lastMsg.text, timestamp: lastMsg.timestamp};
+      }
+
+      // Create conversation preview list item
+      function createConversationItem(conv) {
+        const lastMsg = getLastMessagePreview(conv);
+        const convEl = document.createElement('div');
+        convEl.classList.add('conversation');
+        convEl.setAttribute('role', 'listitem');
+        convEl.tabIndex = 0;
+        if(conv.id === activeConversationId) convEl.classList.add('active');
+        convEl.dataset.convId = conv.id;
+
+        const avatarEl = document.createElement('div');
+        avatarEl.classList.add('conversation-avatar');
+        avatarEl.textContent = conv.avatar;
+
+        const infoEl = document.createElement('div');
+        infoEl.classList.add('conversation-info');
+
+        const nameEl = document.createElement('div');
+        nameEl.classList.add('conversation-name');
+        nameEl.textContent = conv.name;
+
+        const previewEl = document.createElement('div');
+        previewEl.classList.add('conversation-last-message');
+        previewEl.textContent = lastMsg.text.length > 30 ? lastMsg.text.slice(0,27) + '...' : lastMsg.text;
+
+        infoEl.appendChild(nameEl);
+        infoEl.appendChild(previewEl);
+
+        const timeEl = document.createElement('div');
+        timeEl.classList.add('conversation-timestamp');
+        timeEl.textContent = lastMsg.timestamp ? formatTime(lastMsg.timestamp) : '';
+
+        convEl.appendChild(avatarEl);
+        convEl.appendChild(infoEl);
+        convEl.appendChild(timeEl);
+
+        // Keyboard accessibility for enter key
+        convEl.addEventListener('keydown', e => {
+          if(e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectConversation(conv.id);
+          }
         });
-    }
 
-    function sendMessage() {
-      const sender = document.getElementById('sender').value;
-      const message = document.getElementById('message').value;
+        // Click event to select conversation
+        convEl.addEventListener('click', () => {
+          selectConversation(conv.id);
+        });
 
-      fetch('post_message.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `sender=${encodeURIComponent(sender)}&message=${encodeURIComponent(message)}`
-      }).then(() => {
-        document.getElementById('message').value = '';
-        fetchMessages();
+        return convEl;
+      }
+
+      // Render conversation list, optionally filtered by search
+      function renderConversations(filterText = '') {
+        conversationListEl.innerHTML = '';
+        const filtered = contacts.filter(c => c.name.toLowerCase().includes(filterText.toLowerCase()));
+        filtered.forEach(conv => {
+          conversationListEl.appendChild(createConversationItem(conv));
+        });
+      }
+
+      // Render messages for active conversation
+      function renderMessages() {
+        chatMessagesEl.innerHTML = '';
+        if(!activeConversationId) return;
+
+        const conv = contacts.find(c => c.id === activeConversationId);
+        if(!conv) return;
+
+        chatHeaderEl.textContent = conv.name;
+        chatFormEl.hidden = false;
+        messageInputEl.value = '';
+        sendButtonEl.disabled = true;
+        messageInputEl.focus();
+
+        conv.messages.forEach(msg => {
+          const msgDiv = document.createElement('article');
+          msgDiv.classList.add('message', msg.incoming ? 'incoming' : 'outgoing');
+          msgDiv.setAttribute('tabindex', '0');
+          msgDiv.setAttribute('aria-label', `${msg.incoming ? conv.name : 'You'} said: ${msg.text}, at ${formatTime(msg.timestamp)}`);
+
+          msgDiv.textContent = msg.text;
+
+          const timeDiv = document.createElement('div');
+          timeDiv.classList.add('timestamp', msg.incoming ? 'incoming' : 'outgoing');
+          timeDiv.textContent = formatTime(msg.timestamp);
+
+          const msgWrapper = document.createElement('div');
+          msgWrapper.style.display = 'flex';
+          msgWrapper.style.flexDirection = 'column';
+          msgWrapper.appendChild(msgDiv);
+          msgWrapper.appendChild(timeDiv);
+
+          chatMessagesEl.appendChild(msgWrapper);
+        });
+
+        // Scroll to bottom
+        chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+      }
+
+      // Switch active conversation
+      function selectConversation(id){
+        if(activeConversationId === id) return;
+        activeConversationId = id;
+        renderConversations(searchInputEl.value);
+        renderMessages();
+      }
+
+      // Send message handler
+      chatFormEl.addEventListener('submit', e => {
+        e.preventDefault();
+        if(!activeConversationId) return;
+
+        const conv = contacts.find(c => c.id === activeConversationId);
+        if(!conv) return;
+
+        const text = messageInputEl.value.trim();
+        if(text === '') return;
+
+        const newMsg = {
+          text,
+          timestamp: new Date(),
+          incoming: false
+        };
+        conv.messages.push(newMsg);
+
+        // Simulate reply from contact with delay
+        setTimeout(() => {
+          conv.messages.push({
+            text: "Got your message!",
+            timestamp: new Date(),
+            incoming: true
+          });
+          renderMessages();
+          renderConversations(searchInputEl.value);
+        }, 1400);
+
+        renderMessages();
+        renderConversations(searchInputEl.value);
+        messageInputEl.value = '';
+        sendButtonEl.disabled = true;
+        messageInputEl.focus();
       });
-    }
 
-    // Fetch messages every 2 seconds
-    setInterval(fetchMessages, 2000);
-    fetchMessages();
+      // Enable send button only if input has text
+      messageInputEl.addEventListener('input', () => {
+        sendButtonEl.disabled = messageInputEl.value.trim() === '';
+      });
+
+      // Filter conversations on search input
+      searchInputEl.addEventListener('input', () => {
+        renderConversations(searchInputEl.value);
+      });
+
+      // Initial render
+      renderConversations();
+      if(contacts.length > 0) selectConversation(contacts[0].id);
+    })();
   </script>
 </body>
 </html>
+
